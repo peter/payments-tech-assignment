@@ -97,3 +97,8 @@ RSpec.configure do |config|
   Kernel.srand config.seed
 =end
 end
+
+if ENV['SQL_LOGGING']
+  # Debug logging of SQL queries when running tests
+  ActiveRecord::Base.logger = Logger.new(STDOUT)
+end

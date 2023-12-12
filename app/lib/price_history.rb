@@ -3,7 +3,7 @@
 class PriceHistory
   def self.call(**options)
     package_name, year, municipality = parse_call_options!(options)
-    packages = Package.includes(:prices).where(name: package_name)
+    packages = Package.includes(:municipality, :prices).where(name: package_name)
     if year
       start_date_string = "#{year}-01-01"
       start_date = Date.parse(start_date_string).beginning_of_year
