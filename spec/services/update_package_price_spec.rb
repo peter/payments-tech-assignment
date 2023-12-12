@@ -21,19 +21,20 @@ RSpec.describe UpdatePackagePrice do
     }
   end
 
-  it "stores the old price of the provided package in its price history" do
+  it "stores the old and new prices of the provided package in its price history" do
     package = Package.create!(name: "Dunderhonung", price_cents: 100_00)
+    expect(package.prices).to be_one
 
     UpdatePackagePrice.call(package, 200_00)
-    expect(package.prices).to be_one
-    price = package.prices.first
-    expect(price.price_cents).to eq(100_00)
+    expect(package.prices.count).to eq(2)
+    expect(package.prices.first.price_cents).to eq(100_00)
+    expect(package.prices.last.price_cents).to eq(200_00)
   end
 
   # This tests covers feature request 1. Feel free to add more tests or change
   # the existing one.
 
-  xit "supports adding a price for a specific municipality" do
+  it "supports adding a price for a specific municipality" do
     package = Package.create!(name: "Dunderhonung")
 
     UpdatePackagePrice.call(package, 200_00, municipality: "Göteborg")
