@@ -1,6 +1,13 @@
 # Payments Tech Assignment
 
+## TODO
+
+* Update README with architecture/solution and disclaimers
+* More tests
+
 ## Disclaimers/Scope/Discussion
+
+TODO:
 
 * Application structure
 * Data integrity
@@ -9,5 +16,4 @@
 
 ## Architecture and Solution
 
-* Added a `Municipality` model with a unique/indexed `name` field
-* Added the `belongs_to :municipality` relationship in `Package` model (i.e. a `municipality_id` foreign key in the `packages` table)
+TODO
