@@ -5,6 +5,7 @@ require "spec_helper"
 RSpec.describe UpdatePackagePrice do
   it "updates the current price of the provided package" do
     package = Package.create!(name: "Dunderhonung")
+    expect(package.reload.price_cents).to eq(0)
 
     UpdatePackagePrice.call(package, 200_00)
     expect(package.reload.price_cents).to eq(200_00)
@@ -34,12 +35,50 @@ RSpec.describe UpdatePackagePrice do
   # This tests covers feature request 1. Feel free to add more tests or change
   # the existing one.
 
-  it "supports adding a price for a specific municipality" do
+  it "supports creating a price for a specific municipality (creates new package)" do
     package = Package.create!(name: "Dunderhonung")
+    expect(package.reload.price_cents).to eq(0)
 
-    UpdatePackagePrice.call(package, 200_00, municipality: "Göteborg")
+    expect {
+      UpdatePackagePrice.call(package, 200_00, municipality: "Göteborg")
+    }.to change {
+      Package.count
+    }.by(1)
 
-    # You'll need to implement Package#price_for
+    expect(package.reload.price_cents).to eq(0) # unchanged
     expect(package.price_for("Göteborg")).to eq(200_00)
+    municipality = Municipality.find_by(name: "Göteborg")
+    municipality_package = Package.find_by(name: "Dunderhonung", municipality: municipality)
+    expect(municipality_package.price_cents).to eq(200_00)
+    prices = municipality_package.prices
+    expect(prices.length).to eq(1)
+    expect(prices[0].price_cents).to eq(200_00)
+  end
+
+  it "supports updating a price for a specific municipality (updates existing package)" do
+    package = Package.create!(name: "Dunderhonung")
+    expect(package.reload.price_cents).to eq(0)
+
+    expect {
+      UpdatePackagePrice.call(package, 200_00, municipality: "Göteborg")
+    }.to change {
+      Package.count
+    }.by(1)
+
+    expect {
+      UpdatePackagePrice.call(package, 400_00, municipality: "Göteborg")
+    }.to change {
+      Package.count
+    }.by(0)
+
+    expect(package.reload.price_cents).to eq(0) # unchanged
+    expect(package.price_for("Göteborg")).to eq(400_00)
+    municipality = Municipality.find_by(name: "Göteborg")
+    municipality_package = Package.find_by(name: "Dunderhonung", municipality: municipality)
+    expect(municipality_package.price_cents).to eq(400_00)
+    prices = municipality_package.prices
+    expect(prices.length).to eq(2)
+    expect(prices[0].price_cents).to eq(200_00)
+    expect(prices[1].price_cents).to eq(400_00)
   end
 end
