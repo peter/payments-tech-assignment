@@ -22,6 +22,7 @@ class Package < ApplicationRecord
   end
 
   def create_initial_price!
+    # NOTE: this is transactional with the package create as if this throws then the package will not be saved
     self.prices.create!(
       price_cents: self.price_cents,
       price_valid_from: self.price_valid_from || Time.current
